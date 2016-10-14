@@ -261,7 +261,7 @@ var game = function gameStart() {
     inventory.push(new Item("Stick of Whacking", 1, 3, -1));
     inventory.push(new Item("Bandage", 2, 25, 8));
     alert(Player.name + ", the brave adventurer, has been sent by the people to slay the evil that resides within the castle. The events that unfold will determine the fate of the land.");
-    alert("Before you set off on your journey you get your gear together.  You the Stick of Whacking and some bandages, but you need one more thing.  You open your chest to get it.");
+    alert("Before you set off on your journey you get your gear together.  You take the Stick of Whacking and some bandages, but you need one more thing.  You open your chest to get it.");
     GetItem(2);
     alert("Setting off, you head toward the castle as you approach the gaurd at the gate isn't happy to see you.");
     Encounter();
