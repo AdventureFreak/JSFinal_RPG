@@ -7,6 +7,7 @@ var Player = {
     name: "",
     health: 50,
     maxhealth: 50,
+    attack: 0,
 };
 
 //item object
@@ -83,6 +84,7 @@ function GetName() {
         alert("I guess you don't care what your name is. I shall call you " + name + ".");
         Player.name = name;
     }
+    console.log("Player's name is now " + Player.name);
 }
 
 //number randomizer *
@@ -118,15 +120,15 @@ function GetItem(number) {
             case 3:
                 name = RandomItemName(powerNames);
                 type = 1;
-                power = Random(2) + 8;
+                power = Random(4) + 12;
                 uses = Random(2) + 2;
                 break;
 
             default:
                 name = RandomItemName(weaponNames);
                 type = 1;
-                power = Random(3) + 3;
-                uses = Random(5) + 5;
+                power = Random(3) + 5;
+                uses = Random(3) + 3;
                 break;
         }
         list.push(new Item(name, type, power, uses));
@@ -149,9 +151,9 @@ function GetMenu(list) {
             menu += (i+1) + " - " + list[i].name + ": Heals " + list[i].power + "% of your total health, " + list[i].uses + " uses.\n";
         } else {
             if (list[i].uses > 0) {
-                menu += (i+1) + " - " + list[i].name + ": " + list[i].power + " attack power, " + list[i].uses + " uses.\n";
+                menu += (i+1) + " - " + list[i].name + ": " + (list[i].power + Player.attack) + " attack power, " + list[i].uses + " uses.\n";
             } else {
-                menu += (i+1) + " - " + list[i].name + ": " + list[i].power + " attack power.\n";
+                menu += (i+1) + " - " + list[i].name + ": " + (list[i].power + Player.attack) + " attack power.\n";
             }
         }
     }
@@ -163,11 +165,14 @@ function Encounter() {
     var event = Battle();
     switch (event) {
         case "win":
-            alert("Your foe has been defeated. Your health is increased!");
-            Player.maxhealth += 15;
+            alert("Your foe has been defeated.");
+            alert("Your health has increased.");
+            alert("Your attack power has increased.");
+            Player.maxhealth += 20;
+            Player.attack += 3;
             Player.health = Player.maxhealth;
             baseAttack += 5;
-            baseHealth += 20;
+            baseHealth += 40;
             break;
     
         default:
@@ -193,7 +198,7 @@ function Battle() {
             choice = parseInt(prompt("Which item will you use?\n" + menu + "Enter 1 - " + inventory.length) - 1);
         }
         if (inventory[choice].type == 2) {
-            amount = (100 / inventory[choice].power) * Player.maxhealth;
+            amount = Math.round((inventory[choice].power / 100) * Player.maxhealth);
             Player.health += amount;
             alert("You healed yourself for " + amount + " health.");
             if (Player.health > Player.maxhealth) {
@@ -202,7 +207,7 @@ function Battle() {
         } else {
             chance = Random(100);
             if (chance < 95) {
-                amount = inventory[choice].power + Random(2);
+                amount = inventory[choice].power + Player.attack + Random(3);
                 enemy.health -= amount;
                 alert(enemy.name + " took " + amount + " damage!");
             } else {
@@ -215,8 +220,8 @@ function Battle() {
         }
         if (enemy.health > 0) {
             chance = Random(100);
+            alert(enemy.name + " attacks!");
             if (chance < 95) {
-                alert(enemy.name + " attacks!");
                 amount = enemy.attack + Random(3);
                 Player.health -= amount;
                 alert("You took " + amount + " damage!");
@@ -233,27 +238,52 @@ function Battle() {
     return outcome;
 }
 
-GetName();
-inventory.push(new Item("Stick", 1, 3, -1));
-inventory.push(new Item("Bandage", 2, 25, 8));
-GetItem(2);
-Encounter();
-if (dead == false) {
-    GetItem(5);
-    Encounter();
+//Reset player values and inventory
+function PlayerSet() {
+    Player.name = "";
+    Player.health = 50;
+    Player.maxhealth = 50;
+    Player.attack = 0;
+    inventory.splice(0,inventory.length);
 }
-if (dead == false) {
-    GetItem(5);
-    Encounter();
-}
-if (dead == false) {
-    alert("You have saved the land from evil.")
-    alert("You Win!");
-} else {
-    alert("Game Over!");
-}
-/*
-function gameStart() {
 
+//Get the button to enable events
+var button = document.getElementById('start');
+
+//The ganme itself
+var game = function gameStart() {
+    if (inventory.length != 0) {
+        PlayerSet();
+        console.log("Game needs to be reset, and thus I have done so. You are welcome.");
+    }
+    console.log("Game started");
+    GetName();
+    inventory.push(new Item("Stick of Whacking", 1, 3, -1));
+    inventory.push(new Item("Bandage", 2, 25, 8));
+    alert(Player.name + ", the brave adventurer, has been sent by the people to slay the evil that resides within the castle. The events that unfold will determine the fate of the land.");
+    alert("Before you set off on your journey you get your gear together.  You the Stick of Whacking and some bandages, but you need one more thing.  You open your chest to get it.");
+    GetItem(2);
+    alert("Setting off, you head toward the castle as you approach the gaurd at the gate isn't happy to see you.");
+    Encounter();
+    if (dead == false) {
+        alert("Making your way inside you discover a store room.  Why not help yourself to something?");
+        GetItem(5);
+        alert("After a quick loot, you make your way to the tower where the evil master dwells.  Suddenly, you are ambushed!");
+        Encounter();
+    }
+    if (dead == false) {
+        alert("Your attacker had something on them.  This will help you.");
+        GetItem(5);
+        alert("You finally arrive at the tower, and your greatest foe stands before you.");
+        Encounter();
+    }
+    if (dead == false) {
+        alert("The evil master lies defeated. You have saved the land from evil.");
+        alert("You Win!");
+    } else {
+        alert("Game Over!");
+    }
 };
-*/
+
+//Event handler
+button.addEventListener('click', game);
